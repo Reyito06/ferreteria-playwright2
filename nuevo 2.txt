@@ -1,0 +1,73 @@
+const formulario = document.getElementById("formProducto");
+const lista = document.getElementById("listaProductos");
+const mensaje = document.getElementById("mensaje");
+const buscar = document.getElementById("buscar");
+
+let productos = [];
+
+formulario.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const nombre = document.getElementById("nombre").value.trim();
+    const precio = Number(document.getElementById("precio").value);
+    const cantidad = Number(document.getElementById("cantidad").value);
+
+    if (!nombre || precio <= 0 || cantidad < 1) {
+        mensaje.textContent = "Complete correctamente los campos.";
+        return;
+    }
+
+    productos.push({
+        id: Date.now(),
+        nombre,
+        precio,
+        cantidad
+    });
+
+    mostrarProductos();
+
+    mensaje.textContent = "Producto registrado correctamente.";
+
+    formulario.reset();
+});
+
+function mostrarProductos(filtro = "") {
+    lista.innerHTML = "";
+
+    const resultado = productos.filter(producto =>
+        producto.nombre.toLowerCase().includes(filtro.toLowerCase())
+    );
+
+    resultado.forEach(producto => {
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+            <td>${producto.nombre}</td>
+            <td>RD$ ${producto.precio.toFixed(2)}</td>
+            <td>${producto.cantidad}</td>
+            <td>
+                <button class="eliminar"
+                    data-id="${producto.id}">
+                    Eliminar
+                </button>
+            </td>
+        `;
+
+        lista.appendChild(fila);
+    });
+}
+
+lista.addEventListener("click", function(event) {
+    if (event.target.classList.contains("eliminar")) {
+        const id = Number(event.target.dataset.id);
+
+        productos = productos.filter(producto => producto.id !== id);
+
+        mostrarProductos(buscar.value);
+        mensaje.textContent = "Producto eliminado correctamente.";
+    }
+});
+
+buscar.addEventListener("input", function() {
+    mostrarProductos(buscar.value);
+});
